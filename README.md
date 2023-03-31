@@ -10,9 +10,10 @@ DNS設定がうまくできずその後のドメイン認証で躓くかもし�
 また、全体で最悪4日必要なので余裕をもって作業を行うこと。
 
 
-## 1. ドメイン契約（ConoHaで購入可能だが他で購入したものも可能）
+## 1. ドメイン契約
 
 ドメイン名を契約する。
+ConoHaで購入可能。他で購入したものも可能。
 ネームサーバーをメモする。
 
 ＊他で購入したドメインを使用する場合、後でドメイン管理側サイトでネームサーバーを登録する。
@@ -26,7 +27,7 @@ DNS設定がうまくできずその後のドメイン認証で躓くかもし�
 
 VPS構成を選択する際、余裕を持った構成を選択すること。
 
-＊性能が低いと起動後にBat Gatewayエラーになる。
+＊性能が低いと起動後にBad Gatewayエラーになる。
 
 - OS:ubuntu 20.04 or 22.04
 - アプリケーション: Mastodon
@@ -70,10 +71,12 @@ ANSWERの値が0の場合
 のいずれかが原因。
 
 
-## 5. アカウント名「root」でVPS契約時のrootパスワードでログイン。
+## 5. VPSサーバーへログインし設定
+
+アカウント名「root」でVPS契約時のrootパスワードでログイン。
 
 
-- nginx設定
+### nginx設定
 
 ディレクトリ```/etc/nginx/sites-available/```に以下内容のファイルをファイル名「契約したドメイン名.conf」で作成し、「契約したドメイン名」の部分四か所を修正する。
 ```
@@ -178,15 +181,15 @@ map $http_upgrade $connection_upgrade {
 }
 ```
 
-このファイルはセミコロンが抜けていたりでエラーになりやすいのであらかじめテストしてエラーを修正しておく。
-```
-#nginx -t
-```
-
 ファイルを参照できるようにシンボリックリンクで置いておく。
 ```
 #cd /etc/nginx/sites-enabled
 ln -s ../sites-available/契約したドメイン名.conf
+```
+
+このファイルはセミコロンが抜けていたりでエラーになりやすいのであらかじめテストしてエラーを修正しておく。
+```
+#nginx -t
 ```
 
 ## 6. ドメイン名の認証手続き（チャレンジ）
@@ -195,6 +198,8 @@ ln -s ../sites-available/契約したドメイン名.conf
 ```
 #systemctl stop nginx
 ```
+
+### 認証手続き
 
 認証手続きを実行する。
 ```
@@ -223,13 +228,13 @@ ln -s ../sites-available/契約したドメイン名.conf
 #systemctl start nginx
 ```
 
-認証字に参照できるようにドメイン上のルートディレクトリを指定する。
+認証時に参照できるようにドメイン上のルートディレクトリを指定する。
 ```
 #certbot certonly --webroot -d 契約したドメイン名 -w /home/mastodon/live/public/
 ```
 
 
-### TLS証明書の自動更新設定。
+### TLS証明書の自動更新設定
 ```
 #cd /etc/cron.daily
 ```
@@ -298,8 +303,8 @@ Restart=always
 同じ
 ディレクトリで、
 ファイル名「mastodon-sidekiq.service」で下記内容のテキストを作成する。
-[Unit] Description=mastodon-sidekiq
 ```
+[Unit] Description=mastodon-sidekiq
 After=network.target
 [Service] Type=simple
 User=mastodon
